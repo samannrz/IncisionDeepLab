@@ -7,6 +7,11 @@ LABEL_COLORS_LIST = [
 
 ]
 
-VIS_LABEL_MAP = LABEL_COLORS_LIST
+VIS_LABEL_MAP = [
+    (255, 255, 255), # Background.
+    (255, 0, 0), # Treat
+    (0, 255, 0) # Check
+
+]
 
 ROOT_PATH = '/data/projects/DeeplabV3/input/incision/orig_data'

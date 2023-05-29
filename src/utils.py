@@ -238,3 +238,30 @@ def image_overlay(image, segmented_image):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
     return image
+
+def reColor(mask, color):
+    data = np.array(mask)  # "data" is a height x width x 4 numpy array
+    red, green, blue = data.T  # Temporarily unpack the bands for readability
+
+    # Replace green with anothergreen... (leaves alpha values alone...)
+    white_areas = (red == 0) & (blue == 0) & (green == 0)
+    data[black_areas.T] = color  # Transpose back needed
+    mask2 = Image.fromarray(data)
+    return mask2
+def overlayMasks(segmented):
+    # This function takes the two masks and overlay them to the image_orig
+    bg = image_orig.convert('RGB')
+
+    overlay = segmented.convert('RGB')
+    overlay = reColor(overlay, (255, 0, 0))
+    mask1 = overlay.convert('L')
+    mask1 = mask1.point(lambda p: 80 if p < 225 else 0)
+
+    overlay2 = mask2.convert('RGB')
+    overlay2 = reColor(overlay2, (0, 255, 0))
+    mask2 = overlay2.convert('L')
+    mask2 = mask2.point(lambda p: 50 if p < 255 else 0)
+
+    bg.paste(overlay, None, mask1)
+    bg.paste(overlay2, None, mask2)
+    return bg
