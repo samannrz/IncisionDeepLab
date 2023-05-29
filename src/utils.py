@@ -239,27 +239,24 @@ def image_overlay(image, segmented_image):
     cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
     return image
 
-def reColor(mask, color):
+def get_mask_by_color(mask, color):
     data = np.array(mask)  # "data" is a height x width x 4 numpy array
+    data2 = np.zeros(data.size(0), data.size(1), data.size(2), data.size(3))
     red, green, blue = data.T  # Temporarily unpack the bands for readability
 
     # Replace green with anothergreen... (leaves alpha values alone...)
-    white_areas = (red == 0) & (blue == 0) & (green == 0)
-    data[black_areas.T] = color  # Transpose back needed
-    mask2 = Image.fromarray(data)
+    green_areas = (red == color[0]) & (blue == color[2]) & (green == color[1])
+    data2[green_areas.T] = color  # Transpose back needed
+    mask2 = Image.fromarray(data2)
     return mask2
-def overlayMasks(segmented):
+def overlayMasks(image_orig,mask1,mask2):
     # This function takes the two masks and overlay them to the image_orig
     bg = image_orig.convert('RGB')
 
-    overlay = segmented.convert('RGB')
-    overlay = reColor(overlay, (255, 0, 0))
-    mask1 = overlay.convert('L')
+    mask1 = mask1.convert('L')
     mask1 = mask1.point(lambda p: 80 if p < 225 else 0)
 
-    overlay2 = mask2.convert('RGB')
-    overlay2 = reColor(overlay2, (0, 255, 0))
-    mask2 = overlay2.convert('L')
+    mask2 = mask2.convert('L')
     mask2 = mask2.point(lambda p: 50 if p < 255 else 0)
 
     bg.paste(overlay, None, mask1)
