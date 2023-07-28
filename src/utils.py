@@ -1,8 +1,10 @@
+import numpy
 import numpy as np
 import cv2
 import torch
 import os
 import matplotlib.pyplot as plt
+from PIL import Image
 
 from torchvision import transforms
 from config import (
@@ -10,6 +12,7 @@ from config import (
 )
 
 plt.style.use('ggplot')
+
 
 def set_class_values(all_classes, classes_to_train):
     """
@@ -21,6 +24,7 @@ def set_class_values(all_classes, classes_to_train):
     """
     class_values = [all_classes.index(cls.lower()) for cls in classes_to_train]
     return class_values
+
 
 def get_label_mask(mask, class_values, label_colors_list):
     """
@@ -40,23 +44,24 @@ def get_label_mask(mask, class_values, label_colors_list):
     label_mask = label_mask.astype(int)
     return label_mask
 
+
 def draw_translucent_seg_maps(
-    data, 
-    output, 
-    epoch, 
-    i, 
-    val_seg_dir, 
-    label_colors_list,
+        data,
+        output,
+        epoch,
+        i,
+        val_seg_dir,
+        label_colors_list,
 ):
     """
     This function color codes the segmentation maps that is generated while
     validating. THIS IS NOT TO BE CALLED FOR SINGLE IMAGE TESTING
     """
-    alpha = 1 # how much transparency
-    beta = 0.6 # alpha + beta should be 1
-    gamma = 0 # contrast
+    alpha = 1  # how much transparency
+    beta = 0.6  # alpha + beta should be 1
+    gamma = 0  # contrast
 
-    seg_map = output[0] # use only one output from the batch
+    seg_map = output[0]  # use only one output from the batch
     seg_map = torch.argmax(seg_map.squeeze(), dim=0).detach().cpu().numpy()
 
     image = data[0]
@@ -73,13 +78,12 @@ def draw_translucent_seg_maps(
     green_map = np.zeros_like(seg_map).astype(np.uint8)
     blue_map = np.zeros_like(seg_map).astype(np.uint8)
 
-
     for label_num in range(0, len(label_colors_list)):
         index = seg_map == label_num
         red_map[index] = np.array(viz_map)[label_num, 0]
         green_map[index] = np.array(viz_map)[label_num, 1]
         blue_map[index] = np.array(viz_map)[label_num, 2]
-        
+
     rgb = np.stack([red_map, green_map, blue_map], axis=2)
     rgb = np.array(rgb, dtype=np.float32)
     # convert color to BGR format for OpenCV
@@ -90,26 +94,29 @@ def draw_translucent_seg_maps(
     cv2.addWeighted(image, alpha, rgb, beta, gamma, image)
     cv2.imwrite(f"{val_seg_dir}/e{epoch}_b{i}.jpg", image)
 
+
 class SaveBestModel:
     """
     Class to save the best model while training. If the current epoch's 
     validation loss is less than the previous least less, then save the
     model state.
     """
+
     def __init__(self, best_valid_loss=float('inf')):
         self.best_valid_loss = best_valid_loss
-        
+
     def __call__(
-        self, current_valid_loss, epoch, model, out_dir, name='model'
+            self, current_valid_loss, epoch, model, out_dir, name='model'
     ):
         if current_valid_loss < self.best_valid_loss:
             self.best_valid_loss = current_valid_loss
             print(f"\nBest validation loss: {self.best_valid_loss}")
-            print(f"\nSaving best model for epoch: {epoch+1}\n")
+            print(f"\nSaving best model for epoch: {epoch + 1}\n")
             torch.save({
-                'epoch': epoch+1,
+                'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
-                }, os.path.join(out_dir, 'best_'+name+'.pth'))
+            }, os.path.join(out_dir, 'best_' + name + '.pth'))
+
 
 class SaveBestModelIOU:
     """
@@ -117,35 +124,38 @@ class SaveBestModelIOU:
     IoU is higher than the previous highest, then save the
     model state.
     """
+
     def __init__(self, best_iou=float(0)):
         self.best_iou = best_iou
-        
+
     def __call__(self, current_iou, epoch, model, out_dir, name='model'):
         if current_iou > self.best_iou:
             self.best_iou = current_iou
             print(f"\nBest validation IoU: {self.best_iou}")
-            print(f"\nSaving best model for epoch: {epoch+1}\n")
+            print(f"\nSaving best model for epoch: {epoch + 1}\n")
             torch.save({
-                'epoch': epoch+1,
+                'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
-                }, os.path.join(out_dir, 'best_'+name+'.pth'))
+            }, os.path.join(out_dir, 'best_' + name + '.pth'))
+
 
 def save_model(epochs, model, optimizer, criterion, out_dir, name='model'):
     """
     Function to save the trained model to disk.
     """
     torch.save({
-                'epoch': epochs,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': criterion,
-                }, os.path.join(out_dir, name+'.pth'))
+        'epoch': epochs,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss': criterion,
+    }, os.path.join(out_dir, name + '.pth'))
+
 
 def save_plots(
-    train_acc, valid_acc, 
-    train_loss, valid_loss, 
-    train_miou, valid_miou, 
-    out_dir
+        train_acc, valid_acc,
+        train_loss, valid_loss,
+        train_miou, valid_miou,
+        out_dir
 ):
     """
     Function to save the loss and accuracy plots to disk.
@@ -153,26 +163,26 @@ def save_plots(
     # Accuracy plots.
     plt.figure(figsize=(10, 7))
     plt.plot(
-        train_acc, color='tab:blue', linestyle='-', 
+        train_acc, color='tab:blue', linestyle='-',
         label='train accuracy'
     )
     plt.plot(
-        valid_acc, color='tab:red', linestyle='-', 
+        valid_acc, color='tab:red', linestyle='-',
         label='validataion accuracy'
     )
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
     plt.savefig(os.path.join(out_dir, 'accuracy.png'))
-    
+
     # Loss plots.
     plt.figure(figsize=(10, 7))
     plt.plot(
-        train_loss, color='tab:blue', linestyle='-', 
+        train_loss, color='tab:blue', linestyle='-',
         label='train loss'
     )
     plt.plot(
-        valid_loss, color='tab:red', linestyle='-', 
+        valid_loss, color='tab:red', linestyle='-',
         label='validataion loss'
     )
     plt.xlabel('Epochs')
@@ -183,17 +193,18 @@ def save_plots(
     # mIOU plots.
     plt.figure(figsize=(10, 7))
     plt.plot(
-        train_miou, color='tab:blue', linestyle='-', 
+        train_miou, color='tab:blue', linestyle='-',
         label='train mIoU'
     )
     plt.plot(
-        valid_miou, color='tab:red', linestyle='-', 
+        valid_miou, color='tab:red', linestyle='-',
         label='validataion mIoU'
     )
     plt.xlabel('Epochs')
     plt.ylabel('mIoU')
     plt.legend()
     plt.savefig(os.path.join(out_dir, 'miou.png'))
+
 
 # Define the torchvision image transforms
 transform = transforms.Compose([
@@ -202,13 +213,15 @@ transform = transforms.Compose([
                          std=[0.229, 0.224, 0.225])
 ])
 
+
 def get_segment_labels(image, model, device):
     # transform the image to tensor and load into computation device
     image = transform(image).to(device)
-    image = image.unsqueeze(0) # add a batch dimension
+    image = image.unsqueeze(0)  # add a batch dimension
     with torch.no_grad():
         outputs = model(image)
     return outputs
+
 
 def draw_segmentation_map(outputs):
     labels = torch.argmax(outputs.squeeze(), dim=0).detach().cpu().numpy()
@@ -218,47 +231,64 @@ def draw_segmentation_map(outputs):
     red_map = np.zeros_like(labels).astype(np.uint8)
     green_map = np.zeros_like(labels).astype(np.uint8)
     blue_map = np.zeros_like(labels).astype(np.uint8)
-    
+
     for label_num in range(0, len(viz_map)):
         index = labels == label_num
         red_map[index] = np.array(viz_map)[label_num, 0]
         green_map[index] = np.array(viz_map)[label_num, 1]
         blue_map[index] = np.array(viz_map)[label_num, 2]
-        
+
     segmentation_map = np.stack([red_map, green_map, blue_map], axis=2)
     return segmentation_map
 
+
 def image_overlay(image, segmented_image):
-    alpha = 1 # transparency for the original image
-    beta = 1.0 # transparency for the segmentation map
-    gamma = 0 # scalar added to each sum
+    alpha = 1  # transparency for the original image
+    beta = 0.3  # transparency for the segmentation map
+    gamma = 0  # scalar added to each sum
 
     segmented_image = cv2.cvtColor(segmented_image, cv2.COLOR_RGB2BGR)
+
     image = np.array(image)
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
     return image
 
+
 def get_mask_by_color(mask, color):
     data = np.array(mask)  # "data" is a height x width x 4 numpy array
-    data2 = np.zeros(data.size(0), data.size(1), data.size(2), data.size(3))
+    data2 = np.zeros(data.shape)
     red, green, blue = data.T  # Temporarily unpack the bands for readability
-
     # Replace green with anothergreen... (leaves alpha values alone...)
     green_areas = (red == color[0]) & (blue == color[2]) & (green == color[1])
+
     data2[green_areas.T] = color  # Transpose back needed
-    mask2 = Image.fromarray(data2)
+    mask2 = Image.fromarray(data2.astype(np.uint8))
     return mask2
-def overlayMasks(image_orig,mask1,mask2):
+
+
+def overlayMasks(image_orig, mask1, mask2):
     # This function takes the two masks and overlay them to the image_orig
     bg = image_orig.convert('RGB')
-
+    overlay = mask1.convert('RGB')
     mask1 = mask1.convert('L')
-    mask1 = mask1.point(lambda p: 80 if p < 225 else 0)
-
+    mask1 = mask1.point(lambda p: 60 if p > 5 else 0)
+    overlay2 = mask2.convert('RGB')
     mask2 = mask2.convert('L')
-    mask2 = mask2.point(lambda p: 50 if p < 255 else 0)
+    mask2 = mask2.point(lambda p: 60 if p > 5 else 0)
 
     bg.paste(overlay, None, mask1)
     bg.paste(overlay2, None, mask2)
-    return bg
+    return np.array(bg)
+
+def replace_color(im, color1, color2):
+    im = im.convert('RGBA')
+
+    data = np.array(im)  # "data" is a height x width x 4 numpy array
+    red, green, blue, alpha = data.T  # Temporarily unpack the bands for readability
+
+    color1_areas = (red == color1[0]) & (blue == color1[2]) & (green == color1[1])
+
+    data[..., :-1][color1_areas.T] = color2  # Transpose back needed
+    new_img = Image.fromarray(data.astype(np.uint8))
+    return new_img

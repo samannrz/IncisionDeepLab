@@ -10,10 +10,10 @@ from model import prepare_model
 
 # Construct the argument parser.
 parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--input', help='path to input dir')
+parser.add_argument('-i', '--input', help='path to input dir', default= '/data/Videos/endodata/sequ/CHU-CF/6/FCF1_GY_20230208_067_VID001_anon_trim1.mp4' )
 parser.add_argument(
     '--model',
-    default='../outputs/model.pth',
+    default='../outputs_consensus_Batch3-7/model.pth',
     help='path to the model checkpoint'
 )
 args = parser.parse_args()
@@ -23,7 +23,6 @@ os.makedirs(out_dir, exist_ok=True)
 
 # Set computation device.
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# device = 'cpu'
 
 model = prepare_model(num_classes=len(ALL_CLASSES)).to(device)
 ckpt = torch.load(args.model)
@@ -75,6 +74,8 @@ while(cap.isOpened()):
         cv2.putText(final_image, f"{fps:.3f} FPS", (20, 35),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         # press `q` to exit
+        final_image = cv2.resize(final_image, dsize=(frame_width, frame_height), interpolation=cv2.INTER_CUBIC)
+
         cv2.imshow('image', final_image)
         out.write(final_image)
         if cv2.waitKey(1) & 0xFF == ord('q'):

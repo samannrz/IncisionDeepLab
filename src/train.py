@@ -55,6 +55,7 @@ if __name__ == '__main__':
     os.makedirs(out_dir_valid_preds, exist_ok=True)
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print('-'*50,'\n',device,'\n','-'*50)
     model = prepare_model(num_classes=len(ALL_CLASSES)).to(device)
     # Total parameters and trainable parameters.
     total_params = sum(p.numel() for p in model.parameters())
