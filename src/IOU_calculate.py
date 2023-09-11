@@ -5,8 +5,9 @@ import numpy as np
 from statistics import mean
 
 path_ref = '/data/projects/IncisionDeepLab/input/inference_data/'
-# path_inference = '/data/DATA/Incision_predictions/Batch8-9/GG'
-path_inference = '/data/DATA/incision/temp/1'
+path_ref = '/data/projects/IncisionDeepLab/input/inference_data/'
+path_inference = '/data/DATA/Incision_predictions/Batch8-9/GG'
+# path_inference = '/data/DATA/incision/temp/1'
 
 
 def calculate_iou(mask1, mask2):
@@ -17,6 +18,19 @@ def calculate_iou(mask1, mask2):
     if np.sum(intersection) == 0 and np.sum(union) == 0:
         iou = 1
     return iou
+
+
+def calculate_confusion_matrix(mask_GT, mask_pred):
+    epsilon = 1e-15
+
+    intersection = np.logical_and(mask_GT, mask_pred)
+    TP = np.sum(intersection)
+    FN = np.sum(mask_GT) - TP
+    FP = np.sum(mask_pred) - TP
+    TN = np.sum(not mask_pred) - FN
+    TN = np.sum(np.logical_or(not mask_pred, not mask_GT))
+
+    return TP, FP, TN, FN
 
 
 ious_treat = []
