@@ -6,7 +6,9 @@ from statistics import mean
 
 path_ref = '/data/projects/IncisionDeepLab/input/inference_data/'
 path_ref = '/data/DATA/incision/4/'
-path_inference = '/data/DATA/Incision_predictions/Batch8-9/GG'
+path_inference = '/data/DATA/Incision_predictions/Batch8-9/all_data'
+
+
 # path_inference = '/data/DATA/incision/temp/1'
 
 
@@ -21,34 +23,51 @@ def calculate_iou(mask1, mask2):
 
 
 def calculate_confusion_matrix(mask_GT, mask_pred):
-    epsilon = 1e-15
+    mask_GT = mask_GT != 0
+    mask_pred = mask_pred != 0
 
     intersection = np.logical_and(mask_GT, mask_pred)
     TP = np.sum(intersection)
+    im = intersection.astype(int)
     FN = np.sum(mask_GT) - TP
     FP = np.sum(mask_pred) - TP
-    TN = np.sum(not mask_pred) - FN
-    TN = np.sum(np.logical_or(not mask_pred, not mask_GT))
-
+    TN = np.sum(~ mask_pred) - FN
     return TP, FP, TN, FN
 
+
+epsilon = 1e-15
 
 ious_treat = []
 ious_check = []
 mask_list = []
+sensitivity_treat = []
+specificity_treat = []
+sensitivity_check = []
+specificity_check = []
 inf_masks = os.listdir(os.path.join(path_inference, 'mask', 'Treat'))
 for mask in inf_masks:
     mask_ref = cv2.imread(os.path.join(path_ref, 'mask', 'Treat', mask))
     mask_inf = cv2.imread(os.path.join(path_inference, 'mask', 'Treat', mask))
     mask_list.append(mask)
     ious_treat.append(calculate_iou(mask_ref, mask_inf))
+    TP, FP, TN, FN = calculate_confusion_matrix(mask_ref, mask_inf)
+    sensitivity_treat.append(TP / ((TP + FN) + epsilon))
+    specificity_treat.append(TN / ((TN + FP) + epsilon))
+
 for mask in inf_masks:
     mask_ref = cv2.imread(os.path.join(path_ref, 'mask', 'Check', mask))
     mask_inf = cv2.imread(os.path.join(path_inference, 'mask', 'Check', mask))
     ious_check.append(calculate_iou(mask_ref, mask_inf))
+    TP, FP, TN, FN = calculate_confusion_matrix(mask_ref, mask_inf)
+    sensitivity_check.append(TP / ((TP + FN) + epsilon))
+    specificity_check.append(TN / ((TN + FP) + epsilon))
 print(len(mask_list))
 print(mask_list)
 print(ious_treat)
 print(ious_check)
 print('Treat IOU = ', mean(ious_treat))
 print('Check IOU = ', mean(ious_check))
+print('Treat sensitivity = ', mean(sensitivity_treat))
+print('Treat specificity = ', mean(specificity_treat))
+print('Check sensitivity = ', mean(sensitivity_check))
+print('Check specificity = ', mean(specificity_check))
