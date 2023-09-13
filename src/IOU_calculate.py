@@ -73,7 +73,7 @@ for mask in inf_masks:
 
     mask_ref_treat = mask_ref_treat != 0
 
-    treat_row = treat_row + [TP_treat,np.sum(np.logical_and(mask_ref_treat,mask_inf_check)), np.sum(np.logical_and(mask_ref_treat,~np.logical_or(mask_inf_check,mask_inf_treat)))] / np.sum(mask_ref_treat)
+    treat_row = treat_row + [TP_treat+epsilon,np.sum(np.logical_and(mask_ref_treat,mask_inf_check))+epsilon, np.sum(np.logical_and(mask_ref_treat,~np.logical_or(mask_inf_check,mask_inf_treat)))+epsilon] / np.sum(mask_ref_treat)+epsilon
     print(treat_row)
     print(sum(treat_row))
 
