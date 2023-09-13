@@ -44,6 +44,8 @@ sensitivity_treat = []
 specificity_treat = []
 sensitivity_check = []
 specificity_check = []
+f_treat = []
+f_check = []
 inf_masks = os.listdir(os.path.join(path_inference, 'mask', 'Treat'))
 for mask in inf_masks:
     mask_ref = cv2.imread(os.path.join(path_ref, 'mask', 'Treat', mask))
@@ -53,6 +55,8 @@ for mask in inf_masks:
     TP, FP, TN, FN = calculate_confusion_matrix(mask_ref, mask_inf)
     sensitivity_treat.append(TP / ((TP + FN) + epsilon))
     specificity_treat.append(TN / ((TN + FP) + epsilon))
+    specificity_treat.append(TN / ((TN + FP) + epsilon))
+    f_treat.append(2 * TP / (2 * TP + FP + FN))
 
 for mask in inf_masks:
     mask_ref = cv2.imread(os.path.join(path_ref, 'mask', 'Check', mask))
@@ -61,6 +65,8 @@ for mask in inf_masks:
     TP, FP, TN, FN = calculate_confusion_matrix(mask_ref, mask_inf)
     sensitivity_check.append(TP / ((TP + FN) + epsilon))
     specificity_check.append(TN / ((TN + FP) + epsilon))
+    f_check.append(2 * TP / (2 * TP + FP + FN))
+
 print(len(mask_list))
 print(mask_list)
 print(ious_treat)
@@ -71,3 +77,7 @@ print('Treat sensitivity = ', mean(sensitivity_treat))
 print('Treat specificity = ', mean(specificity_treat))
 print('Check sensitivity = ', mean(sensitivity_check))
 print('Check specificity = ', mean(specificity_check))
+print('Treat F-Score = ', mean(f_treat))
+print('Check F-Score = ', mean(f_check))
+
+
