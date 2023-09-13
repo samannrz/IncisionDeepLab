@@ -56,7 +56,7 @@ for mask in inf_masks:
     sensitivity_treat.append(TP / ((TP + FN) + epsilon))
     specificity_treat.append(TN / ((TN + FP) + epsilon))
     specificity_treat.append(TN / ((TN + FP) + epsilon))
-    f_treat.append(2 * TP / (2 * TP + FP + FN))
+    f_treat.append(((2 * TP)+epsilon) / ((2 * TP + FP + FN)+epsilon))
 
 for mask in inf_masks:
     mask_ref = cv2.imread(os.path.join(path_ref, 'mask', 'Check', mask))
