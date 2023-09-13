@@ -6,7 +6,7 @@ from statistics import mean
 
 path_ref = '/data/projects/IncisionDeepLab/input/inference_data/'
 path_ref = '/data/DATA/incision/4/'
-path_inference = '/data/DATA/Incision_predictions/Batch8-9/JLß'
+path_inference = '/data/DATA/Incision_predictions/Batch8-9/JL/'
 
 
 # path_inference = '/data/DATA/incision/temp/1'
