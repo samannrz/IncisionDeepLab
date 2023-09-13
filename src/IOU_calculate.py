@@ -46,6 +46,10 @@ sensitivity_check = []
 specificity_check = []
 f_treat = []
 f_check = []
+treat_row = [0,0,0]
+check_row = [0,0,0]
+bg_row = [0,0,0]
+
 inf_masks = os.listdir(os.path.join(path_inference, 'mask', 'Treat'))
 for mask in inf_masks:
     mask_ref_treat = cv2.imread(os.path.join(path_ref, 'mask', 'Treat', mask))
@@ -69,7 +73,7 @@ for mask in inf_masks:
 
     mask_ref_treat = mask_ref_treat != 0
 
-    treat_row = [TP_treat,np.sum(np.logical_and(mask_ref_treat,mask_inf_check)), np.sum(np.logical_and(mask_ref_treat,~np.logical_or(mask_inf_check,mask_inf_treat)))] / np.sum(mask_ref_treat)
+    treat_row = treat_row + [TP_treat,np.sum(np.logical_and(mask_ref_treat,mask_inf_check)), np.sum(np.logical_and(mask_ref_treat,~np.logical_or(mask_inf_check,mask_inf_treat)))] / np.sum(mask_ref_treat)
     print(treat_row)
     print(sum(treat_row))
 
