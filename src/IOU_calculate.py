@@ -35,7 +35,7 @@ def calculate_confusion_matrix(mask_GT, mask_pred):
     return TP, FP, TN, FN
 
 
-epsilon = 1e-15
+epsilon = 1e-1
 
 ious_treat = []
 ious_check = []
