@@ -82,5 +82,5 @@ print('Check sensitivity = ', mean(sensitivity_check))
 print('Check specificity = ', mean(specificity_check))
 print('Treat F-Score = ', mean(f_treat))
 print('Check F-Score = ', mean(f_check))
-path_ref(treat_row)
+print(treat_row)
 
