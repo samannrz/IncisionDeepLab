@@ -48,24 +48,27 @@ f_treat = []
 f_check = []
 inf_masks = os.listdir(os.path.join(path_inference, 'mask', 'Treat'))
 for mask in inf_masks:
-    mask_ref = cv2.imread(os.path.join(path_ref, 'mask', 'Treat', mask))
-    mask_inf = cv2.imread(os.path.join(path_inference, 'mask', 'Treat', mask))
+    mask_ref_treat = cv2.imread(os.path.join(path_ref, 'mask', 'Treat', mask))
+    mask_inf_treat = cv2.imread(os.path.join(path_inference, 'mask', 'Treat', mask))
     mask_list.append(mask)
-    ious_treat.append(calculate_iou(mask_ref, mask_inf))
-    TP, FP, TN, FN = calculate_confusion_matrix(mask_ref, mask_inf)
-    sensitivity_treat.append(TP / ((TP + FN) + epsilon))
-    specificity_treat.append(TN / ((TN + FP) + epsilon))
-    specificity_treat.append(TN / ((TN + FP) + epsilon))
-    f_treat.append(((2 * TP)+epsilon) / ((2 * TP + FP + FN)+epsilon))
+    ious_treat.append(calculate_iou(mask_ref_treat, mask_inf_treat))
+    TP_treat, FP_treat, TN_treat, FN_treat = calculate_confusion_matrix(mask_ref_treat, mask_inf_treat)
+    sensitivity_treat.append(TP_treat / ((TP_treat + FN_treat) + epsilon))
+    specificity_treat.append(TN_treat / ((TN_treat + FP_treat) + epsilon))
+    specificity_treat.append(TN_treat / ((TN_treat + FP_treat) + epsilon))
+    f_treat.append(((2 * TP_treat)+epsilon) / ((2 * TP_treat + FP_treat + FN_treat)+epsilon))
 
-for mask in inf_masks:
-    mask_ref = cv2.imread(os.path.join(path_ref, 'mask', 'Check', mask))
-    mask_inf = cv2.imread(os.path.join(path_inference, 'mask', 'Check', mask))
-    ious_check.append(calculate_iou(mask_ref, mask_inf))
-    TP, FP, TN, FN = calculate_confusion_matrix(mask_ref, mask_inf)
-    sensitivity_check.append(TP / ((TP + FN) + epsilon))
-    specificity_check.append(TN / ((TN + FP) + epsilon))
-    f_check.append(2 * TP / (2 * TP + FP + FN))
+
+    mask_ref_check = cv2.imread(os.path.join(path_ref, 'mask', 'Check', mask))
+    mask_inf_check = cv2.imread(os.path.join(path_inference, 'mask', 'Check', mask))
+    ious_check.append(calculate_iou(mask_ref_check, mask_inf_check))
+    TP_check, FP_check, TN_check, FN_check = calculate_confusion_matrix(mask_ref_check, mask_inf_check)
+    sensitivity_check.append(TP_check / ((TP_check + FN_check) + epsilon))
+    specificity_check.append(TN_check / ((TN_check + FP_check) + epsilon))
+    f_check.append(2 * TP_check / (2 * TP_check + FP_check + FN_check))
+
+    treat_row = [TP_treat,np.sum(np.logical_and(mask_ref_treat,mask_inf_check)), np.sum(np.logical_and(mask_ref_treat,~np.logical_or(mask_inf_check,mask_inf_treat)))] /np.sum(mask_ref_treat)
+
 
 print(len(mask_list))
 print(mask_list)
@@ -79,5 +82,5 @@ print('Check sensitivity = ', mean(sensitivity_check))
 print('Check specificity = ', mean(specificity_check))
 print('Treat F-Score = ', mean(f_treat))
 print('Check F-Score = ', mean(f_check))
-
+path_ref(treat_row)
 
