@@ -88,7 +88,6 @@ def validate(
                     save_dir, 
                     label_colors_list,
                 )
-
             ##### BATCH-WISE LOSS #####
             loss = criterion(outputs, target)
             valid_running_loss += loss.item()

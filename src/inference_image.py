@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='path to input dir', default='../input/inference_data/images')
 parser.add_argument(
     '--model',
-    default='../outputs_consensus_Batch3-7/model.pth',
+    default='../outputs_consensus_Batch1-21/model.pth',
     help='path to the model checkpoint'
 )
 parser.add_argument('-o', '--output', help='path to output dir', default=os.path.join('..', 'outputs', 'inference_results'))

@@ -1,4 +1,6 @@
+import itertools
 import os.path
+import statistics
 
 import cv2
 import numpy as np
@@ -6,7 +8,10 @@ from statistics import mean
 
 path_ref = '/data/projects/IncisionDeepLab/input/inference_data/'
 path_ref = '/data/DATA/incision/4/'
-path_inference = '/data/DATA/Incision_predictions/Batch8-9/all_data/'
+path_inference = '/data/DATA/Incision_predictions/Batch8-9/all_data'
+
+
+# path_inference = '/data/DATA/Annotators/F/Batch8-9/'
 
 
 # path_inference = '/data/DATA/incision/temp/1'
@@ -57,6 +62,8 @@ for mask in inf_masks:
     mask_list.append(mask)
     ious_treat.append(calculate_iou(mask_ref_treat, mask_inf_treat))
     TP_treat, FP_treat, TN_treat, FN_treat = calculate_confusion_matrix(mask_ref_treat, mask_inf_treat)
+    print('treat', TP_treat, FP_treat, TN_treat, FN_treat)
+
     sensitivity_treat.append(TP_treat / ((TP_treat + FN_treat) + epsilon))
     specificity_treat.append(TN_treat / ((TN_treat + FP_treat) + epsilon))
     specificity_treat.append(TN_treat / ((TN_treat + FP_treat) + epsilon))
@@ -66,6 +73,7 @@ for mask in inf_masks:
     mask_inf_check = cv2.imread(os.path.join(path_inference, 'mask', 'Check', mask))
     ious_check.append(calculate_iou(mask_ref_check, mask_inf_check))
     TP_check, FP_check, TN_check, FN_check = calculate_confusion_matrix(mask_ref_check, mask_inf_check)
+    print('check',TP_check, FP_check, TN_check, FN_check)
     sensitivity_check.append(TP_check / ((TP_check + FN_check) + epsilon))
     specificity_check.append(TN_check / ((TN_check + FP_check) + epsilon))
     f_check.append(2 * TP_check / (2 * TP_check + FP_check + FN_check))
@@ -97,8 +105,19 @@ print(len(mask_list))
 print(mask_list)
 print(ious_treat)
 print(ious_check)
-print('Treat IOU = ', mean(ious_treat))
-print('Check IOU = ', mean(ious_check))
+print('Mean Treat IOU = ', mean(ious_treat))
+print('Mean Check IOU = ', mean(ious_check))
+print('Var Treat IOU = ', statistics.pstdev(ious_treat) ** 2)
+print('Var Check IOU = ', statistics.pstdev(ious_check) ** 2)
+ious_check = list(itertools.filterfalse(lambda x: x == 0, ious_check))
+ious_treat = list(itertools.filterfalse(lambda x: x == 0, ious_treat))
+print(len(ious_treat))
+print(len(ious_check))
+
+print('Mean Treat IOU = ', mean(ious_treat))
+print('Mean Check IOU = ', mean(ious_check))
+print('Var Treat IOU = ', statistics.pstdev(ious_treat) ** 2)
+print('Var Check IOU = ', statistics.pstdev(ious_check) ** 2)
 print('Treat sensitivity = ', mean(sensitivity_treat))
 print('Treat specificity = ', mean(specificity_treat))
 print('Check sensitivity = ', mean(sensitivity_check))
@@ -113,19 +132,19 @@ print('conf_matrix_backg : ', np.mean(bg_row, 0))
 import numpy as np
 import matplotlib.pyplot as plt
 
-plt.imshow(conf_matrix,cmap='Blues')
+plt.imshow(conf_matrix, cmap='Blues')
 for i in range(3):
     for j in range(3):
         c = conf_matrix[j][i]
-        plt.text(i, j, str(round(c,3)), va='center', ha='center')
+        plt.text(i, j, str(round(c, 3)), va='center', ha='center')
 plt.text(0, -.6, 'treat', va='center', ha='center')
 plt.text(1, -.6, 'check', va='center', ha='center')
 plt.text(2, -.6, 'background', va='center', ha='center')
-plt.text(-.6, 0, 'treat', va='center', ha='center',rotation = 'vertical')
-plt.text(-.6, 1, 'check', va='center', ha='center',rotation = 'vertical')
-plt.text(-.6, 2, 'background', va='center', ha='center',rotation = 'vertical')
+plt.text(-.6, 0, 'treat', va='center', ha='center', rotation='vertical')
+plt.text(-.6, 1, 'check', va='center', ha='center', rotation='vertical')
+plt.text(-.6, 2, 'background', va='center', ha='center', rotation='vertical')
 plt.text(1, -.8, 'Prediction', va='center', ha='center')
-plt.text(-.8, 1, 'Ground Truth', va='center', ha='center', rotation = 'vertical')
+plt.text(-.8, 1, 'Ground Truth', va='center', ha='center', rotation='vertical')
 
 plt.xticks([])
 plt.yticks([])

@@ -76,7 +76,7 @@ while(cap.isOpened()):
         # press `q` to exit
         final_image = cv2.resize(final_image, dsize=(frame_width, frame_height), interpolation=cv2.INTER_CUBIC)
 
-        cv2.imshow('image', final_image)
+        # cv2.imshow('image', final_image)
         out.write(final_image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
