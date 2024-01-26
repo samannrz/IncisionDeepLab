@@ -29,7 +29,7 @@ def set_class_values(all_classes, classes_to_train):
 def get_label_mask(mask, class_values, label_colors_list):
     """
     This function encodes the pixels belonging to the same class
-    in the image into the same label
+    in the unannotated_test into the same label
 
     :param mask: NumPy array, segmentation mask.
     :param class_values: List containing class values, e.g car=0, bus=1.
@@ -67,7 +67,7 @@ def draw_translucent_seg_maps(
     image = data[0]
     image = np.array(image.cpu())
     image = np.transpose(image, (1, 2, 0))
-    # unnormalize the image (important step)
+    # unnormalize the unannotated_test (important step)
     mean = np.array([0.45734706, 0.43338275, 0.40058118])
     std = np.array([0.23965294, 0.23532275, 0.2398498])
     image = std * image + mean
@@ -206,7 +206,7 @@ def save_plots(
     plt.savefig(os.path.join(out_dir, 'miou.png'))
 
 
-# Define the torchvision image transforms
+# Define the torchvision unannotated_test transforms
 transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -215,7 +215,7 @@ transform = transforms.Compose([
 
 
 def get_segment_labels(image, model, device):
-    # transform the image to tensor and load into computation device
+    # transform the unannotated_test to tensor and load into computation device
     image = transform(image).to(device)
     image = image.unsqueeze(0)  # add a batch dimension
     with torch.no_grad():
@@ -243,7 +243,7 @@ def draw_segmentation_map(outputs):
 
 
 def image_overlay(image, segmented_image):
-    alpha = 1  # transparency for the original image
+    alpha = 1  # transparency for the original unannotated_test
     beta = 0.3  # transparency for the segmentation map
     gamma = 0  # scalar added to each sum
 
