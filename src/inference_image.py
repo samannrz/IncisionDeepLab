@@ -43,7 +43,7 @@ for i, image_path in enumerate(all_image_paths):
     # print(f"Image {i + 1}:", os.path.join(args.input, image_path))
     # if '../input/inference_data/images/FCF1_GY_20221017_040_VID001_anon_trim1.mp4_00134.png' != os.path.join(args.input, image_path):
     #     continue
-    # Read the unannotated_test.
+    # Read the image.
     image = Image.open(os.path.join(args.input, image_path))
     fr_width, fr_height = image.size
     image = image.resize((512, 512))
@@ -55,7 +55,7 @@ for i, image_path in enumerate(all_image_paths):
     mask1 = get_mask_by_color(segmented_image, VIS_LABEL_MAP[1])
     mask2 = get_mask_by_color(segmented_image, VIS_LABEL_MAP[2])
     final_image = overlayMasks(image, mask1, mask2)
-    # cv2.imshow('Segmented unannotated_test', final_image)
+    # cv2.imshow('Segmented image', final_image)
     # cv2.waitKey(1)
     cv2.imwrite(os.path.join(out_dir,'final', image_path),
                 cv2.cvtColor(cv2.resize(final_image, (fr_width, fr_height), interpolation=cv2.INTER_AREA),

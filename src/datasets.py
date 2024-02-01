@@ -21,7 +21,7 @@ def get_images(root_path):
 
 def normalize():
     """
-    Transform to normalize unannotated_test.
+    Transform to normalize image.
     """
     transform = A.Compose([
         A.Normalize(
@@ -36,7 +36,7 @@ def train_transforms(img_size):
     """
     Transforms/augmentations for training images and masks.
 
-    :param img_size: Integer, for unannotated_test resize.
+    :param img_size: Integer, for image resize.
     """
     train_image_transform = A.Compose([
         A.Resize(img_size, img_size, always_apply=True),
@@ -53,7 +53,7 @@ def valid_transforms(img_size):
     """
     Transforms/augmentations for validation images and masks.
 
-    :param img_size: Integer, for unannotated_test resize.
+    :param img_size: Integer, for image resize.
     """
     valid_image_transform = A.Compose([
         A.Resize(img_size, img_size, always_apply=True),
@@ -90,9 +90,9 @@ class SegmentationDataset(Dataset):
         image = np.array(Image.open(self.image_paths[index]).convert('RGB'))
         mask = np.array(Image.open(self.mask_paths[index]).convert('RGB'))
 
-        image = self.norm_tfms(image=image)['unannotated_test']
+        image = self.norm_tfms(image=image)['image']
         transformed = self.tfms(image=image, mask=mask)
-        image = transformed['unannotated_test']
+        image = transformed['image']
         mask = transformed['mask']
         
         # Get colored label mask.
