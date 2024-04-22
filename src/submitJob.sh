@@ -7,7 +7,7 @@
 #SBATCH --error=sdterr
 #SBATCH --ntasks=2  ## number of tasks (analyses) to run
 #SBATCH --gpus-per-task=2 # number of gpus per task
-#SBATCH --mem-per-gpu=7000M # Memory allocated per gpu
+#SBATCH --mem-per-gpu=2000M # Memory allocated per gpu
 #SBATCH --time=0-00:10:00  ## time for analysis (day-hour:min:sec)
 
 ## Run the script
