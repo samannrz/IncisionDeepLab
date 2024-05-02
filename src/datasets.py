@@ -87,12 +87,9 @@ class SegmentationDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, index):
-        try:
-            image = np.array(Image.open(self.image_paths[index]).convert('RGB'))
-        except:
-            print(self.image_paths[index])
+        print(self.image_paths[index])
+        image = np.array(Image.open(self.image_paths[index]).convert('RGB'))
         mask = np.array(Image.open(self.mask_paths[index]).convert('RGB'))
-
         image = self.norm_tfms(image=image)['image']
         transformed = self.tfms(image=image, mask=mask)
         image = transformed['image']
