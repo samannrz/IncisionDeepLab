@@ -87,7 +87,7 @@ class SegmentationDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, index):
-        print(image_paths[index])
+        # print(self.image_paths[index])
         image = np.array(Image.open(self.image_paths[index]).convert('RGB'))
         mask = np.array(Image.open(self.mask_paths[index]).convert('RGB'))
 
@@ -142,10 +142,10 @@ def get_dataset(
 
 def get_data_loaders(train_dataset, valid_dataset, batch_size):
     train_data_loader = DataLoader(
-        train_dataset, batch_size=batch_size, drop_last=False, num_workers =3
+        train_dataset, batch_size=batch_size, drop_last=False, num_workers =1
     )
     valid_data_loader = DataLoader(
-        valid_dataset, batch_size=batch_size, drop_last=False, num_workers =3
+        valid_dataset, batch_size=batch_size, drop_last=False, num_workers =1
     )
 
     return train_data_loader, valid_data_loader
