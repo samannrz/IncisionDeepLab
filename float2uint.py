@@ -15,7 +15,7 @@ for file_name in files:
     if file_name.endswith(".png") or file_name.endswith(".jpg") or file_name.endswith(".jpeg"):
         # Read the image
         img = cv2.imread(os.path.join(folder_path, file_name))
-
+        print(file_name)
         # Convert the image from float32 to uint8
         img_uint8 = np.clip(img * 255.0, 0, 255).astype(np.uint8)
 
