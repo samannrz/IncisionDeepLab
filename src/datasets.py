@@ -141,10 +141,10 @@ def get_dataset(
 
 def get_data_loaders(train_dataset, valid_dataset, batch_size):
     train_data_loader = DataLoader(
-        train_dataset, batch_size=batch_size, drop_last=False
+        train_dataset, batch_size=batch_size, drop_last=False, num_workers =3
     )
     valid_data_loader = DataLoader(
-        valid_dataset, batch_size=batch_size, drop_last=False
+        valid_dataset, batch_size=batch_size, drop_last=False, num_workers =3
     )
 
     return train_data_loader, valid_data_loader
