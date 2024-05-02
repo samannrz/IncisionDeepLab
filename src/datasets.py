@@ -87,6 +87,7 @@ class SegmentationDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, index):
+        print(image_paths[index])
         image = np.array(Image.open(self.image_paths[index]).convert('RGB'))
         mask = np.array(Image.open(self.mask_paths[index]).convert('RGB'))
 
