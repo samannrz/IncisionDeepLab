@@ -4,8 +4,10 @@ import argparse
 import time
 import os
 
-from utils import get_segment_labels, draw_segmentation_map, image_overlay
-from config import ALL_CLASSES
+from PIL import Image
+
+from utils import get_segment_labels, draw_segmentation_map, image_overlay,get_mask_by_color, overlayMasks
+from config import ALL_CLASSES, VIS_LABEL_MAP
 from model import prepare_model
 
 # Construct the argument parser.
@@ -43,7 +45,7 @@ for video_name in os.listdir(args.input):
     frame_height = int(cap.get(4))
 
     save_name = f"{args.input.split('/')[-1].split('.')[0]}"
-    save_name = f"{video.split('/')[-1].split('.')[0]}"
+    save_name = f"{video_name.split('/')[-1].split('.')[0]}"
 
     #save_name = video_name
     # define codec and create VideoWriter object
@@ -53,11 +55,14 @@ for video_name in os.listdir(args.input):
 
     frame_count = 0 # to count total frames
     total_fps = 0 # to get the final frames per second
-
+    print(save_name)
     # read until end of video
     while(cap.isOpened()):
         # capture each frame of the video
         ret, frame = cap.read()
+        print(save_name)
+        fr_height, fr_width = frame.shape[:2]
+
         if ret:
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             rgb_frame = cv2.resize(rgb_frame, (512, 512))
@@ -67,8 +72,15 @@ for video_name in os.listdir(args.input):
             outputs = get_segment_labels(rgb_frame, model, device)
             outputs = outputs['out']
             segmented_image = draw_segmentation_map(outputs)
+            mask1 = get_mask_by_color(segmented_image, VIS_LABEL_MAP[1])
+            mask2 = get_mask_by_color(segmented_image, VIS_LABEL_MAP[2])
+            frame = Image.fromarray(rgb_frame)
 
-            final_image = image_overlay(rgb_frame, segmented_image)
+            final_image = overlayMasks(frame, mask1, mask2)
+
+
+
+            #final_image = image_overlay(rgb_frame, segmented_image)
 
             # get the end time
             end_time = time.time()
@@ -79,13 +91,15 @@ for video_name in os.listdir(args.input):
             # increment frame count
             frame_count += 1
             # put the FPS text on the current frame
-            cv2.putText(final_image, f"{fps:.3f} FPS", (20, 35),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            # cv2.putText(final_image, f"{fps:.3f} FPS", (20, 35),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             # press `q` to exit
-            final_image = cv2.resize(final_image, dsize=(frame_width, frame_height), interpolation=cv2.INTER_CUBIC)
+            #final_image = cv2.resize(final_image, dsize=(frame_width, frame_height), interpolation=cv2.INTER_CUBIC)
 
-            # cv2.imshow('image', final_image)
-            out.write(final_image)
+            #cv2.imshow('image', cv2.cvtColor(cv2.resize(final_image, (fr_width, fr_height), interpolation=cv2.INTER_AREA),
+            #cv2.COLOR_BGR2RGB))
+            out.write(cv2.cvtColor(cv2.resize(final_image, (fr_width, fr_height), interpolation=cv2.INTER_AREA),
+                                   cv2.COLOR_BGR2RGB))
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         else:

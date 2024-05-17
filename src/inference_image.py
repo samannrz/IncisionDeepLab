@@ -54,6 +54,7 @@ for i, image_path in enumerate(all_image_paths):
     segmented_image = draw_segmentation_map(outputs)
     mask1 = get_mask_by_color(segmented_image, VIS_LABEL_MAP[1])
     mask2 = get_mask_by_color(segmented_image, VIS_LABEL_MAP[2])
+
     final_image = overlayMasks(image, mask1, mask2)
     # cv2.imshow('Segmented image', final_image)
     # cv2.waitKey(1)
